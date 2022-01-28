@@ -35,6 +35,7 @@ execution](https://github.com/saleyn/gen_timed_server)
 - [Example of using WebSockets in Erlang](https://github.com/saleyn/erws_example)
 - [Erlang ZeroMQ binding](https://github.com/saleyn/erlzmq)
 - [Sample payments processing engine](https://github.com/saleyn/payments-engine)
+- [SortedSet container](https://github.com/saleyn/sorted_set/tree/erlang)
 
 # C++ Open Source Work
 
