@@ -46,3 +46,7 @@ execution](https://github.com/saleyn/gen_timed_server)
 - [ZedGraph Charting Library](https://github.com/saleyn/ZedGraph)
 - [NFX Unistack Framework](https://github.com/saleyn/nfx)
 - [Erlang .NET interface](https://github.com/saleyn/otp.net)
+
+# Javascript Open Source Work
+- [Erlb.JS - Binary Erlang Marshaling Codec](https://github.com/saleyn/erlb.js)
+- [Javascript Replacement of Standard Alert/Prompt/Confirm Dialogs](https://github.com/saleyn/js-dialog)
