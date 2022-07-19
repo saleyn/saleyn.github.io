@@ -39,6 +39,7 @@ execution](https://github.com/saleyn/gen_timed_server)
 
 # C++ Open Source Work
 
+- [Loading shared objects from memory](https://github.com/saleyn/memfd_create)
 - [Sqlite interface for MT4 terminal](https://github.com/saleyn/sqlite3-mt4)
 - [Erlang C++ interface](https://github.com/saleyn/eixx)
 - [Utxx library for low-latency computing and networking](https://github.com/saleyn/utxx)
