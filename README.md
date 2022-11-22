@@ -36,6 +36,7 @@ execution](https://github.com/saleyn/gen_timed_server)
 - [Erlang ZeroMQ binding](https://github.com/saleyn/erlzmq)
 - [Sample payments processing engine](https://github.com/saleyn/payments-engine)
 - [SortedSet container](https://github.com/saleyn/sorted_set/tree/erlang)
+- [Heroiconex](https://github.com/saleyn/heroiconex) - Heroicons wrapper for Elixir/Phoenix
 
 # C++ Open Source Work
 
