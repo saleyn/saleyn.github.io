@@ -17,8 +17,7 @@
 
 - [Execute and control OS processes from Erlang/OTP](https://github.com/saleyn/erlexec)
 - [MapReduce and Pipeline Parse Transforms for Erlang](https://github.com/saleyn/etran)
-- [Cron-like scheduling of Erlang modules/functions](https://github.com/saleyn/erlcron)
-(Rewrite the implementation of the scheduler)
+- [Cron-like scheduling of Erlang modules/functions](https://github.com/erlware/erlcron)
 - [Sqlite3 database interface](https://github.com/saleyn/erlang-sqlite3) (Implemented many
 enhancements)
 - [Direct access to memory mapped files and memory sharing in
