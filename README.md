@@ -16,7 +16,7 @@
 # Erlang/Elixir Open Source Work
 
 - [Execute and control OS processes from Erlang/OTP](https://github.com/saleyn/erlexec)
-- [MapReduce and Pipeline Parse Transforms for Erlang](https://github.com/saleyn/etran)
+- [Fold Comprehension and Pipeline Parse Transforms for Erlang](https://github.com/saleyn/etran)
 - [Cron-like scheduling of Erlang modules/functions](https://github.com/erlware/erlcron)
 - [Sqlite3 database interface](https://github.com/saleyn/erlang-sqlite3) (Implemented many
 enhancements)
