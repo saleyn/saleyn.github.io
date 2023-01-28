@@ -37,6 +37,7 @@ execution](https://github.com/saleyn/gen_timed_server)
 - [Sample payments processing engine](https://github.com/saleyn/payments-engine)
 - [SortedSet container](https://github.com/saleyn/sorted_set/tree/erlang)
 - [Heroiconex](https://github.com/saleyn/heroiconex) (Heroicons wrapper for Elixir/Phoenix)
+- [MultiSelect](https://github.com/saleyn/phx-multi-select) (MultiSelect component for Phoenix LiveView)
 
 # C++ Open Source Work
 
