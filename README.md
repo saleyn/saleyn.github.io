@@ -38,6 +38,7 @@ execution](https://github.com/saleyn/gen_timed_server)
 - [SortedSet container](https://github.com/saleyn/sorted_set/tree/erlang)
 - [Heroiconex](https://github.com/saleyn/heroiconex) (Heroicons wrapper for Elixir/Phoenix)
 - [MultiSelect component for Phoenix LiveView](https://github.com/saleyn/phx-multi-select)
+- [Fastest JSON parser](https://github.com/saleyn/simdjsone)
 
 # C++ Open Source Work
 
