@@ -39,6 +39,7 @@ execution](https://github.com/saleyn/gen_timed_server)
 - [Heroiconex](https://github.com/saleyn/heroiconex) (Heroicons wrapper for Elixir/Phoenix)
 - [MultiSelect component for Phoenix LiveView](https://github.com/saleyn/phx-multi-select)
 - [Fastest JSON parser](https://github.com/saleyn/simdjsone)
+- [Native interface to git](https://github.com/saleyn/egit)
 
 # C++ Open Source Work
 
