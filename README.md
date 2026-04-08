@@ -18,6 +18,8 @@
 - [Execute and control OS processes from Erlang/OTP](https://github.com/saleyn/erlexec)
 - [Fold Comprehension and Pipeline Parse Transforms for Erlang](https://github.com/saleyn/etran)
 - [Cron-like scheduling of Erlang modules/functions](https://github.com/erlware/erlcron)
+- [Structured DSL parser](https://github.com/saleyn/parselet)
+- [Elixir column-aligning code formatter](https://github.com/saleyn/exalign)
 - [Sqlite3 database interface](https://github.com/saleyn/erlang-sqlite3) (Implemented many
 enhancements)
 - [Direct access to memory mapped files and memory sharing in
