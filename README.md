@@ -17,9 +17,12 @@
 
 - [Execute and control OS processes from Erlang/OTP](https://github.com/saleyn/erlexec)
 - [Fold Comprehension and Pipeline Parse Transforms for Erlang](https://github.com/saleyn/etran)
+- [Glazer - fastest JSON decoder/encoder for Erlang](https://github.com/saleyn/glazer)
+- [DBML - database markup language support in Erlang](https://github.com/saleyn/dbml)
+- [ErlAlign - columnar coder formatter for Erlang source code](https://github.com/saleyn/erlalign)
+- [ExAlign - columnar coder formatter for Elixir source code](https://github.com/saleyn/exalign)
 - [Cron-like scheduling of Erlang modules/functions](https://github.com/erlware/erlcron)
 - [Structured DSL parser](https://github.com/saleyn/parselet)
-- [Elixir column-aligning code formatter](https://github.com/saleyn/exalign)
 - [Sqlite3 database interface](https://github.com/saleyn/erlang-sqlite3) (Implemented many
 enhancements)
 - [Direct access to memory mapped files and memory sharing in
