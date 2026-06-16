@@ -46,6 +46,7 @@ execution](https://github.com/saleyn/gen_timed_server)
 - [Fastest JSON parser](https://github.com/saleyn/simdjsone) (deprecated, transitioned to [glazer](https://github.com/saleyn/glazer))
 - [Native interface to git](https://github.com/saleyn/egit)
 - [Typed Structures and Records in Elixir](https://github.com/saleyn/typedstruct)
+- [Erlang External Term Format codec for Elixir/Phoenix transport](https://github.com/saleyn/flick)
 
 # C++ Open Source Work
 
