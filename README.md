@@ -3,7 +3,7 @@
   author: Serge Aleynikov
   title: Erlang Articles
 -->
-<img width="1584" height="672" alt="open-source" src="saleyn-banner.png" />
+![Banner](https://github.com/saleyn/saleyn.github.io/blob/main/open-source.png?raw=true)
 
 **Author**: Serge Aleynikov
 
