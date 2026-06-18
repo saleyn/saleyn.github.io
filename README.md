@@ -20,6 +20,7 @@
 - [Fold Comprehension and Pipeline Parse Transforms for Erlang](https://github.com/saleyn/etran)
 - [Glazer - fastest JSON decoder/encoder for Erlang](https://github.com/saleyn/glazer)
 - [DBML - database markup language support in Erlang](https://github.com/saleyn/dbml)
+- [Erlang External Term Format codec for Elixir/Phoenix transport](https://github.com/saleyn/flick)
 - [ErlAlign - columnar coder formatter for Erlang source code](https://github.com/saleyn/erlalign)
 - [ExAlign - columnar coder formatter for Elixir source code](https://github.com/saleyn/exalign)
 - [Cron-like scheduling of Erlang modules/functions](https://github.com/erlware/erlcron)
@@ -47,7 +48,6 @@ execution](https://github.com/saleyn/gen_timed_server)
 - [Fastest JSON parser](https://github.com/saleyn/simdjsone) (deprecated, transitioned to [glazer](https://github.com/saleyn/glazer))
 - [Native interface to git](https://github.com/saleyn/egit)
 - [Typed Structures and Records in Elixir](https://github.com/saleyn/typedstruct)
-- [Erlang External Term Format codec for Elixir/Phoenix transport](https://github.com/saleyn/flick)
 
 # C++ Open Source Work
 
