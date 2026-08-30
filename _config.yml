@@ -11,6 +11,7 @@ markdown: kramdown
 permalink: /:categories/:year/:month/:day/:title/
 kramdown:
   input: GFM
+author: "Serge Aleynikov"
 include:
   - README.md
   - ei-in-port-programs.md
