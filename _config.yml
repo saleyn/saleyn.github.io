@@ -7,6 +7,9 @@ plugins:
 relative_links:
   enabled: true
   collections: true
+markdown: kramdown
+kramdown:
+  input: GFM
 include:
   - README.md
   - ei-in-port-programs.md
