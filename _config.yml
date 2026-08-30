@@ -8,6 +8,7 @@ relative_links:
   enabled: true
   collections: true
 markdown: kramdown
+permalink: /:categories/:year/:month/:day/:title/
 kramdown:
   input: GFM
 include:
