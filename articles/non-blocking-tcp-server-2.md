@@ -4,9 +4,9 @@
 
 ## Overview
 
-In my post, *"Building a Non-blocking TCP Server Using OTP Principles"*, I covered how to write a TCP server using OTP non-blocking principles. That articles explains how to overcome the synchronization race condition during server socket accept states (specifically separating socket ownership, asynchronous `gen_tcp` listening, and worker process spawning). It had an issue of using the undocumented `prim_inet:async_accept/2` function as a hack to make sure that the acceptor can be invoked without blocking the `gen_server` process.
+In my post, *"Building a Non-blocking TCP Server Using OTP Principles"*, I covered how to write a TCP server using OTP non-blocking principles. That articles explains how to overcome the synchronization race condition during server socket accept states (specifically separating socket ownership, asynchronous `gen_tcp` listening, and worker process spawning). In order to make the server fully non-blocking, I had to use a hack - calling the undocumented `prim_inet:async_accept/2` function - to make sure that the acceptor can be invoked without blocking the `gen_server` process.
 
-Below is a spiritual successor to that article, updating the concept for modern Erlang/OTP using the modern **`socket`** module (introduced via [EEP 153](https://www.google.com/search?q=https://www.erlang.org/eeps/eep-0053.html) and added natively in OTP 21+).
+Below is a spiritual successor to that article, updating the concept for modern Erlang/OTP using the **`socket`** module (introduced via [EEP 153](https://www.google.com/search?q=https://www.erlang.org/eeps/eep-0053.html) and added natively in OTP 21+), which removes the need of calling any undocumented functions for non-blocking compliance.
 
 # Building an Asynchronous TCP Server Using Erlang's `socket` Module
 
@@ -29,14 +29,11 @@ The modern `socket` API relies on explicit asynchronous operation completion, re
 
 ```
 
-
 5. **Direct Socket Transfer**: Unlike `gen_tcp`, where the listening socket process had to transfer ownership via `controlling_process/2`, `socket` descriptors can be passed directly to new worker processes without intermediate `inet` state synchronization.
-
----
 
 ## Implementation: The Modern Non-Blocking Acceptor
 
-Below is a complete, minimal `gen_server` implementation using the modern `socket` API.
+Below is a complete, minimal `gen_server` implementation using the modern `socket` API. Note that handling of client connections can also be done using a `gen_server` behavior, however here for the sake of simplicity we spawn a process that calls `worker_loop/1` and recursively fetches messages from its mailbox:
 
 ```erlang
 -module(async_tcp_server).
@@ -123,18 +120,16 @@ terminate(_Reason, #state{listen_socket = ListenSocket}) ->
 
 %% Initiates an asynchronous accept request
 start_accept(#state{listen_socket = ListenSocket} = State) ->
-    %% 'nowait' tells socket:accept/2 to perform non-blocking IO immediately
+    %% 'nowait' tells socket:accept/2 to perform non-blocking I/O immediately
     case socket:accept(ListenSocket, nowait) of
         {ok, ClientSocket} ->
-            %% Connection accepted immediately!
+            %% Connection accepted immediately, spawn a handling process
             spawn_worker(ClientSocket),
-            %% Continue accepting remaining pending connections
             start_accept(State);
 
         {select, {select_info, _Flags, SelectRef}} ->
             %% No incoming connection available right now.
-            %% BEAM registered our process to receive a '$socket' notification
-            %% once a client connects.
+            %% A '$socket' notification once a client connects.
             State#state{accept_ref = SelectRef};
 
         {error, Reason} ->
@@ -171,7 +166,6 @@ worker_loop(ClientSocket) ->
             logger:error("Worker socket error: ~p", [Reason]),
             socket:close(ClientSocket)
     end.
-
 ```
 
 ---
@@ -183,7 +177,7 @@ worker_loop(ClientSocket) ->
 | **Driver Overhead** | Port driver wrapper managed by `inet_drv`. | Direct C-NIF bindings executing close to kernel system calls (`sys_api`). |
 | **Accept Mechanism** | Blocking `gen_tcp:accept/1` or async via hidden `prim_inet` tricks. | Explicit non-blocking `socket:accept(Listen, nowait)` returning `{select, Ref}`. |
 | **Socket Transfer** | Required explicit execution of `gen_tcp:controlling_process/2`. | `socket:socket()` references are simple terms that can be used directly across processes. |
-| **Active Mode Options** | `{active, true | once | N}` byte streams mapped to messages. | Fine-grained non-blocking reads using `socket:recv(Socket, Length, nowait)` and explicit select mechanics. |
+| **Active Mode Options** | `{active, true \| once \| N}` byte streams mapped to messages. | Fine-grained non-blocking reads using `socket:recv(Socket, Length, nowait)` and explicit select mechanics. |
 
 ## Why This Approach Fits OTP Principles
 
