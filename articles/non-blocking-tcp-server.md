@@ -166,7 +166,7 @@ The listener process is implemented as a gen_server behaviour:
 
 %%--------------------------------------------------------------------
 %% @spec (Port::integer(), Module) -> {ok, Pid} | {error, Reason}
-%
+%%
 %% @doc Called by a supervisor to start the listening process.
 %% @end
 %%----------------------------------------------------------------------

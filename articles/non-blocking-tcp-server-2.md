@@ -26,7 +26,6 @@ The modern `socket` API relies on explicit asynchronous operation completion, re
 4. **`erlang:select` messages**: When a connection arrives, the process receives a message containing the reference tag from `SelectInfo`:
 ```erlang
 {'$socket', Socket, select, SelectRef}
-
 ```
 
 5. **Direct Socket Transfer**: Unlike `gen_tcp`, where the listening socket process had to transfer ownership via `controlling_process/2`, `socket` descriptors can be passed directly to new worker processes without intermediate `inet` state synchronization.
@@ -53,16 +52,16 @@ Below is a complete, minimal `gen_server` implementation using the modern `socke
     accept_ref      :: reference() | undefined
 }).
 
-%%%====================================================================
+%%%--------------------------------------------------------------------
 %%% API Functions
-%%%====================================================================
+%%%--------------------------------------------------------------------
 
 start_link(Port, ClientSockOpts) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [Port, ClientSockOpts], []).
 
-%%%====================================================================
+%%%--------------------------------------------------------------------
 %%% gen_server Callbacks
-%%%====================================================================
+%%%--------------------------------------------------------------------
 
 init([Port, ClientSockOpts]) ->
     %% 1. Open an IPv4 stream TCP socket
@@ -123,9 +122,9 @@ terminate(_Reason, #state{listen_socket = ListenSocket}) ->
         _ -> socket:close(ListenSocket)
     end.
 
-%%%====================================================================
+%%%--------------------------------------------------------------------
 %%% Internal Functions
-%%%====================================================================
+%%%--------------------------------------------------------------------
 
 %% Initiates an asynchronous accept request
 start_accept(#state{listen_socket = ListenSocket, client_sockopts = CSockOpts} = State) ->
