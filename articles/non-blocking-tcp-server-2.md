@@ -4,7 +4,7 @@
 
 ## Overview
 
-In my post, *"Building a Non-blocking TCP Server Using OTP Principles"*, I covered how to write a TCP server using OTP non-blocking principles. That articles explains how to overcome the synchronization race condition during server socket accept states (specifically separating socket ownership, asynchronous `gen_tcp` listening, and worker process spawning). In order to make the server fully non-blocking, I had to use a hack - calling the undocumented `prim_inet:async_accept/2` function - to make sure that the acceptor can be invoked without blocking the `gen_server` process.
+In my post, ["Building a Non-blocking TCP Server Using OTP Principles"](non-blocking-tcp-server.md), I covered how to write a TCP server using OTP non-blocking principles. That articles explains how to overcome the synchronization race condition during server socket accept states (specifically separating socket ownership, asynchronous `gen_tcp` listening, and worker process spawning). In order to make the server fully non-blocking, I had to use a hack - calling the undocumented `prim_inet:async_accept/2` function - to make sure that the acceptor can be invoked without blocking the `gen_server` process.
 
 Below is a spiritual successor to that article, updating the concept for modern Erlang/OTP using the **`socket`** module (introduced via [EEP 153](https://www.google.com/search?q=https://www.erlang.org/eeps/eep-0053.html) and added natively in OTP 21+), which removes the need of calling any undocumented functions for non-blocking compliance.
 
@@ -40,7 +40,7 @@ Below is a complete, minimal `gen_server` implementation using the modern `socke
 -behaviour(gen_server).
 
 %% API
--export([start_link/1, stop/1]).
+-export([start_link/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2]).
@@ -48,30 +48,39 @@ Below is a complete, minimal `gen_server` implementation using the modern `socke
 -define(DEFAULT_PORT, 8080).
 
 -record(state, {
-    listen_socket :: socket:socket(),
-    accept_ref    :: reference() | undefined
+    listen_socket   :: socket:socket(),
+    client_sockopts :: list(),
+    accept_ref      :: reference() | undefined
 }).
 
-%% ===================================================================
-%% API Functions
-%% ===================================================================
+%%%====================================================================
+%%% API Functions
+%%%====================================================================
 
-start_link(Port) ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [Port], []).
+start_link(Port, ClientSockOpts) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [Port, ClientSockOpts], []).
 
-stop(ServerRef) ->
-    gen_server:stop(ServerRef).
+%%%====================================================================
+%%% gen_server Callbacks
+%%%====================================================================
 
-%% ===================================================================
-%% gen_server Callbacks
-%% ===================================================================
-
-init([Port]) ->
+init([Port, ClientSockOpts]) ->
     %% 1. Open an IPv4 stream TCP socket
     case socket:open(inet, stream, tcp) of
         {ok, ListenSocket} ->
             %% 2. Set socket options (e.g., reuse address)
-            _ = socket:setopt(ListenSocket, socket, reuseaddr, true),
+            %%
+            %% For TCP, the window scale is negotiated during the three-way
+            %% handshake, so SO_RCVBUF / SO_SNDBUF must be set on the listening
+            %% socket before `listen/1`. Setting them on the accepted socket
+            %% after `accept/2` is too late to affect the initial window.
+            {LSockOpts, CliSockOpts} =
+                lists:partition(ClientSockOpts, fun({Opt, _}) ->
+                    lists:member(Opt, [rcvbuf, sndbuf])
+                end),
+            [ok = socket:setopt(ListenSocket, socket, Opt, Val) || {Opt, Val} <- LSockOpts],
+
+            ok = socket:setopt(ListenSocket, socket, reuseaddr, true),
 
             %% 3. Bind to specified port
             Addr = #{family => inet, addr => any, port => Port},
@@ -81,7 +90,10 @@ init([Port]) ->
                     ok = socket:listen(ListenSocket),
 
                     %% 5. Begin non-blocking accept loop
-                    State = #state{listen_socket = ListenSocket},
+                    State = #state{
+                        listen_socket   = ListenSocket,
+                        client_sockopts = CliSockOpts
+                    },
                     {ok, start_accept(State)};
                 {error, Reason} ->
                     {stop, {bind_error, Reason}}
@@ -99,10 +111,7 @@ handle_cast(_Msg, State) ->
 %% Handle notification that socket is ready to accept a client
 handle_info({'$socket', ListenSocket, select, SelectRef},
             #state{listen_socket = ListenSocket, accept_ref = SelectRef} = State) ->
-
-    %% Clear active select reference and attempt to accept again
-    NewState = State#state{accept_ref = undefined},
-    {noreply, start_accept(NewState)};
+    {noreply, start_accept(State#state{accept_ref = undefined})};
 
 handle_info(Info, State) ->
     logger:notice("Unexpected info message: ~p", [Info]),
@@ -114,17 +123,17 @@ terminate(_Reason, #state{listen_socket = ListenSocket}) ->
         _ -> socket:close(ListenSocket)
     end.
 
-%% ===================================================================
-%% Internal Functions
-%% ===================================================================
+%%%====================================================================
+%%% Internal Functions
+%%%====================================================================
 
 %% Initiates an asynchronous accept request
-start_accept(#state{listen_socket = ListenSocket} = State) ->
+start_accept(#state{listen_socket = ListenSocket, client_sockopts = CSockOpts} = State) ->
     %% 'nowait' tells socket:accept/2 to perform non-blocking I/O immediately
     case socket:accept(ListenSocket, nowait) of
         {ok, ClientSocket} ->
             %% Connection accepted immediately, spawn a handling process
-            spawn_worker(ClientSocket),
+            spawn_worker(ClientSocket, CSockOpts),
             start_accept(State);
 
         {select, {select_info, _Flags, SelectRef}} ->
@@ -133,22 +142,26 @@ start_accept(#state{listen_socket = ListenSocket} = State) ->
             State#state{accept_ref = SelectRef};
 
         {error, Reason} ->
+            %% If reasons are `emfile` or `enfile` - the OS ran out of file
+            %% descriptors - you need to adjust/set `ulimit -n`
             logger:error("Failed to accept socket: ~p", [Reason]),
             State
     end.
 
 %% Spawns a dedicated connection handler process
-spawn_worker(ClientSocket) ->
-    spawn(fun() -> worker_loop(ClientSocket) end).
+spawn_worker(ClientSocket, CSockOpts) ->
+    spawn(fun() ->
+        set_sock_opts(ClientSocket, CSockOpts),
+        worker_loop(ClientSocket)
+    end).
 
 %% Asynchronous worker reading from client
 worker_loop(ClientSocket) ->
     %% Attempt non-blocking read of up to 1024 bytes
     case socket:recv(ClientSocket, 1024, nowait) of
         {ok, Data} ->
-            logger:info("Received ~p bytes: ~p", [byte_size(Data), Data]),
-            %% Echo data back asynchronously
-            _ = socket:send(ClientSocket, Data),
+            %% For the sake of this example just echo the data back to client
+            ok = socket:send(ClientSocket, Data),
             worker_loop(ClientSocket);
 
         {select, {select_info, _Flags, _SelectRef}} ->
@@ -159,16 +172,27 @@ worker_loop(ClientSocket) ->
             end;
 
         {error, closed} ->
-            logger:info("Client disconnected"),
             socket:close(ClientSocket);
 
         {error, Reason} ->
             logger:error("Worker socket error: ~p", [Reason]),
             socket:close(ClientSocket)
     end.
-```
 
----
+set_sock_opts(ClientSocket, CSockOpts) ->
+    try
+        lists:foreach(CSockOpts, fun({Opt, Value}) ->
+            case socket:setopt(ClientSocket, Opt, Value) of
+                ok              -> ok;
+                {error, closed} -> ok;
+                {error, Reason} -> erlang:error({Opt, Reason})
+            end
+        end)
+    catch _:Reason:StackTrace ->
+        logger:error("Error setting client socket options ~p: ~p~n  ~p",
+            [CSockOpts, Reason, StackTrace])
+    end.
+```
 
 ## Architectural Comparison: Classic `gen_tcp` vs Modern `socket`
 
@@ -184,3 +208,8 @@ worker_loop(ClientSocket) ->
 1. **Non-blocking Event Loop Integration**: The `socket:accept(..., nowait)` call eliminates process thread blocking. The `gen_server` remains responsive to incoming system/supervisor calls while awaiting network activity.
 2. **Zero Race Conditions**: Because `socket` descriptors do not enforce strict process ownership in the legacy driver sense, worker processes can read from sockets as soon as they receive the term. There is no need for socket transfer handshakes.
 3. **Kernel-Native Flow Control**: By specifying explicit chunk sizes and utilizing `nowait`, server processes consume memory on demand rather than letting uncontrolled `{active, true}` streams flood the message queue.
+
+## Improvement Ideas
+
+1. For strict OTP compliance the client connection handling processes need to implement `gen_server` behavior.
+2. The fact that the client connection hanling processes get spawned unlinked and unmonitored theoretically opens the door for process leaks or DOS attacks. In production servers some rate-throttling may be needed, as well as process linking to make sure the processes are cleaned up when the listener process exits.

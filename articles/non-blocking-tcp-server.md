@@ -85,28 +85,25 @@ stop(_S) ->
 %% Supervisor behaviour callbacks
 %%----------------------------------------------------------------------
 init([Port, Module]) ->
-    {ok,
-        {_SupFlags = {one_for_one, ?MAX_RESTART, ?MAX_TIME},
-            [
-              % TCP Listener
-              {   tcp_server_sup,                          % Id       = internal id
-                  {tcp_listener,start_link,[Port,Module]}, % StartFun = {M, F, A}
-                  permanent,                               % Restart  = permanent | transient | temporary
-                  2000,                                    % Shutdown = brutal_kill | int() >= 0 | infinity
-                  worker,                                  % Type     = worker | supervisor
-                  [tcp_listener]                           % Modules  = [Module] | dynamic
-              },
-              % Client instance supervisor
-              {   tcp_client_sup,
-                  {supervisor,start_link,[{local, tcp_client_sup}, ?MODULE, [Module]]},
-                  permanent,                               % Restart  = permanent | transient | temporary
-                  infinity,                                % Shutdown = brutal_kill | int() >= 0 | infinity
-                  supervisor,                              % Type     = worker | supervisor
-                  []                                       % Modules  = [Module] | dynamic
-              }
-            ]
-        }
-    };
+    SupFlags = #{strategy  => one_for_one,
+                 intensity => ?MAX_RESTART,
+                 period    => ?MAX_TIME},
+    ChildSpecs = [
+        #{id       => tcp_server_sup,
+          start    => {tcp_listener, start_link, [Port,Module]},
+          restart  => permanent,
+          shutdown => 2000,
+          type     => worker,
+          modules  => [tcp_listener]},
+
+        #{id       => tcp_client_sup,
+          start    => {supervisor, start_link, [{local, tcp_client_sup}, ?MODULE, [Module]]},
+          restart  => permanent,
+          shutdown => infinity,
+          type     => supervisor,
+          modules  => []}
+    ],
+    {ok, {SupFlags, ChildSpecs}};
 
 init([Module]) ->
     {ok,
@@ -485,11 +482,15 @@ terminate(_Reason, _StateName, #state{socket=Socket}) ->
 %%-------------------------------------------------------------------------
 code_change(_OldVsn, StateName, StateData, _Extra) ->
     {ok, StateName, StateData}.
-Application File
+```
+
+## Application File
+
 Another required part of building an OTP application is creation of an application file that includes application name, version, startup module and environment.
 
-Application File (tcp_server.app)
+**Application File (tcp_server.app)**:
 
+```erlang
 {application, tcp_server,
  [
   {description, "Demo TCP server"},
