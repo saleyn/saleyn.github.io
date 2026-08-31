@@ -1,4 +1,4 @@
-# Building a Non-blocking TCP server using OTP principles
+# Building a Non-blocking TCP server using OTP principles (part 1)
 
 **Author**: Serge Aleynikov <saleyn at gmail.com>
 

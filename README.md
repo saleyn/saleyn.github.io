@@ -9,10 +9,10 @@
 
 # Erlang Articles
 
-- [Building a Non-blocking TCP server using OTP principles](non-blocking-tcp-server.md) by Serge Aleynikov
-- [Gen event behavior demystified](gen-event-demystified.md) by Serge Aleynikov
-- [Using EI interface in port programs](ei-in-port-programs.md) by Serge Aleynikov
-- [SNMP Quick Start](snmp-quick-start.md) by Vance Shipley and Serge Aleynikov
+- [Building a Non-blocking TCP server using OTP principles](articles/non-blocking-tcp-server.md) by Serge Aleynikov
+- [Gen event behavior demystified](articles/gen-event-demystified.md) by Serge Aleynikov
+- [Using EI interface in port programs](articles/ei-in-port-programs.md) by Serge Aleynikov
+- [SNMP Quick Start](articles/snmp-quick-start.md) by Vance Shipley and Serge Aleynikov
 
 # Erlang/Elixir Open Source Work
 
