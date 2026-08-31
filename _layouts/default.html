@@ -42,11 +42,17 @@
     }
     pre code { background: none; padding: 0; }
     h1, h2, h3 { color: #fff; }
-    img {
-      max-width: 640px;
+    main > img {
+      width: 100%;
+      max-width: 600px;
       height: auto;
       display: block;
-      margin: 0 auto 2rem;
+      margin: 0 0 2rem;
+    }
+    @media (max-width: 480px) {
+      main > img {
+        max-width: 300px;
+      }
     }
   </style>
 </head>
