@@ -200,7 +200,7 @@ set_sock_opts(ClientSocket, CSockOpts) ->
 | **Driver Overhead** | Port driver wrapper managed by `inet_drv`. | Direct C-NIF bindings executing close to kernel system calls (`sys_api`). |
 | **Accept Mechanism** | Blocking `gen_tcp:accept/1` or async via hidden `prim_inet` tricks. | Explicit non-blocking `socket:accept(Listen, nowait)` returning `{select, Ref}`. |
 | **Socket Transfer** | Required explicit execution of `gen_tcp:controlling_process/2`. | `socket:socket()` references are simple terms that can be used directly across processes. |
-| **Active Mode Options** | `{active, true \| once \| N}` byte streams mapped to messages. | Fine-grained non-blocking reads using `socket:recv(Socket, Length, nowait)` and explicit select mechanics. |
+| **Active Mode Options** | `{active, true | once | N}` byte streams mapped to messages. | Fine-grained non-blocking reads using `socket:recv(Socket, Length, nowait)` and explicit select mechanics. |
 
 ## Why This Approach Fits OTP Principles
 
