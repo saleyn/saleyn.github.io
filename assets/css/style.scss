@@ -1,3 +1,42 @@
 ---
 ---
+
 @import "{{ site.theme }}";
+
+/* Rouge Syntax Highlighting for Slate Theme */
+.highlight {
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Erlang Keywords, Attributes & Operators */
+.highlight .k, 
+.highlight .kd, 
+.highlight .kr, 
+.highlight .kn { color: #d73a49; font-weight: bold; } /* -module, -export, case, receive */
+
+/* Functions & Calls */
+.highlight .nf, 
+.highlight .fm { color: #6f42c1; font-weight: bold; } /* Function definitions/calls */
+
+/* Strings & Atoms */
+.highlight .s, 
+.highlight .s2, 
+.highlight .sb { color: #032f62; }                    /* "string" */
+.highlight .ss { color: #22863a; }                    /* atoms like 'ok' or 'error' */
+
+/* Comments */
+.highlight .c, 
+.highlight .c1, 
+.highlight .ch { color: #6a737d; font-style: italic; } /* % comments */
+
+/* Numbers & Variables */
+.highlight .mi, 
+.highlight .mf { color: #005cc5; }                    /* 123, 3.14 */
+.highlight .vc, 
+.highlight .vg, 
+.highlight .vi { color: #e36209; }                    /* Capitalized Erlang variables */
+
+/* Line numbers styling */
+.highlight .lineno { color: #aaa; margin-right: 10px; user-select: none; }
