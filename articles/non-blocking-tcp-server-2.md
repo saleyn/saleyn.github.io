@@ -1,10 +1,10 @@
 # Building a Non-blocking TCP server using OTP principles (part 2)
 
-**Author**: Serge Aleynikov <saleyn at gmail.com>
+**Author**: Serge Aleynikov <saleyn at gmail.com> - Aug 25, 2026.
 
 ## Overview
 
-In my post, ["Building a Non-blocking TCP Server Using OTP Principles"](non-blocking-tcp-server.md), I covered how to write a TCP server using OTP non-blocking principles. That articles explains how to overcome the synchronization race condition during server socket accept states (specifically separating socket ownership, asynchronous `gen_tcp` listening, and worker process spawning). In order to make the server fully non-blocking, I had to use a hack - calling the undocumented `prim_inet:async_accept/2` function - to make sure that the acceptor can be invoked without blocking the `gen_server` process.
+Years ago in my post, ["Building a Non-blocking TCP Server Using OTP Principles"](non-blocking-tcp-server.md), I covered how to write a TCP server using OTP non-blocking principles. That articles explains how to overcome the synchronization race condition during server socket accept states (specifically separating socket ownership, asynchronous `gen_tcp` listening, and worker process spawning). In order to make the server fully non-blocking, I had to use a hack - calling the undocumented `prim_inet:async_accept/2` function - to make sure that the acceptor can be invoked without blocking the `gen_server` process.
 
 Below is a more modern successor to that article, updating the concept for modern Erlang/OTP using the **`socket`** module (introduced via [EEP 153](https://www.google.com/search?q=https://www.erlang.org/eeps/eep-0053.html) and added natively in OTP 21+), which removes the need of calling any undocumented functions for non-blocking compliance.
 
