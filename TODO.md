@@ -1,0 +1,1 @@
+- Run images through: https://tinyjpg.com
