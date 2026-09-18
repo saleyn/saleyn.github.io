@@ -85,7 +85,30 @@ Most retrieval approaches still treat code as a bag of text. Graphify builds an 
 
 Its practical value is making TDD less random. Change a core utility used by fourteen services and the graph shows the real blast radius so you know which tests actually need attention. You still write the tests. You just stop testing the wrong surfaces.
 
-I used it on a polyglot request path that went React → Elixir LiveView → Rust NIF → Postgres. The graph made the type-boundary tests obvious instead of a guessing game. That alone justified the setup time.
+To illustrate its work I used it on an Elixir app that implements a distributed order processing engine which saved orders to Postgres. The Graphify's local AST parse mapped the full runtime layout of the application. Here is a sample output:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                   ORDER PROCESSING SYSTEM GRAPH                  │
+└──────────────────────────────────────────────────────────────────┘
+
+                 [OrderSystem.Application]
+                            │
+              ┌─────────────┴─────────────┐
+              ▼                           ▼
+  [OrderSystem.OrderRegistry]  [OrderSystem.OrderSupervisor]
+                                          │ (spawns dynamically)
+                                          ▼
+                             [OrderSystem.Pipeline.Processor]
+                                    │               │
+                            (uses)  │               │ (dispatches)
+                                    ▼               ▼
+                       [Core.Order Schema]  [PaymentBehaviour]
+                                                    ▲
+                                                    │ (implements)
+                                                    │
+                                        [Pipeline.StripeAdapter]
+```
 
 ## Two Lighter Options
 
