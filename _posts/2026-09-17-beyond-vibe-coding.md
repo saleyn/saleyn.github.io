@@ -7,7 +7,7 @@ tags: [ai, bmad, speckit, openspec, opengap, erlang, elixir, programming-languag
 ---
 ![Beyond Vibe Coding]({{ '/assets/beyond-vibe-coding.jpg' | relative_url }})
 
-The first time I asked an AI agent to build a feature from scratch I felt like a wizard. Typed a messy paragraph, hit enter, watched two hundred lines of code emitted out of thin air. High-fived the monitor. Felt ridiculous for two days afterward, like my decades-long code-writing experience expired worthless.  But still still I was tempted to go back and try more.
+The first time I asked an AI agent to build a feature from scratch I felt like a wizard. Typed a messy paragraph, hit enter, watched two hundred lines of code emitted out of thin air. High-fived the monitor. Felt ridiculous for two days afterward, like my decades-long code-writing experience expired worthless.  But still I was tempted to go back and try more.
 
 Six weeks later, same agent, live multi-tier production app. I wanted to throw the laptop through the window.
 
