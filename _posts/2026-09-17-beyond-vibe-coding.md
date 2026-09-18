@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Beyond Vibe Coding: Which Spec-Driven AI Framework To Pick For Fixing Production Tech Debt"
+title: "Beyond Vibe Coding: Picking an AI Tech-Spec Framework"
 author: Serge Aleynikov
 date: 2026-09-17
 tags: [ai, bmad, speckit, openspec, opengap, erlang, elixir, programming-languages]
