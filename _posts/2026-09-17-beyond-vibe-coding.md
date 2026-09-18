@@ -23,7 +23,7 @@ People keep collapsing these two. They shouldn’t.
 
 TDD lives at the unit level. Failing test, minimal code, refactor. It answers one tight question: does this small piece do what I just claimed? Still one of the best design tools we have.
 
-SDD sits higher. You write the actual specification—requirements, constraints, non-goals, acceptance criteria—before anyone (or any model) starts implementing. Different question entirely: did we build the thing we said we were going to build?
+SDD sits higher. You write the actual specification-requirements, constraints, non-goals, acceptance criteria-before anyone (or any model) starts implementing. Different question entirely: did we build the thing we said we were going to build?
 
 | Aspect              | Traditional TDD                          | Spec-Driven Development (SDD)                     |
 |---------------------|------------------------------------------|---------------------------------------------------|
@@ -35,7 +35,7 @@ SDD sits higher. You write the actual specification—requirements, constraints,
 
 They fit together cleanly. SDD points at the destination. TDD keeps the individual steps from falling apart. Skip the first and you can end up with beautifully tested code that solves the wrong problem. Skip the second and the elegant spec still ships bugs.
 
-I spent a few weeks putting five of these frameworks through real, messy codebases: OpenSpec, OpenGap, BMAD, GitHub SpecKit, Graphify. Also poked at a couple of lighter options. What follows is less a neat taxonomy and more what actually held up when things got ugly.
+I spent some time putting five of these frameworks through real, messy codebases: OpenSpec, OpenGap, BMAD, GitHub SpecKit, Graphify. Also poked at a couple of lighter options. What follows is less a neat taxonomy and more what actually held up when things got ugly.
 
 ## Landscape Snapshot
 
@@ -57,7 +57,7 @@ I used it to add a subscription tier to an Express app that had grown teeth. Def
 
 ## GitHub SpecKit
 
-This one is heavier. Four-stage pipeline—Specify, Plan, Tasks, Implement—and you are not allowed to jump ahead. The Constitution file is where you write the non-negotiables. Short-lived JWTs. Rate limiting on every endpoint. That kind of thing.
+This one is heavier. Four-stage pipeline-Specify, Plan, Tasks, Implement-and you are not allowed to jump ahead. The Constitution file is where you write the non-negotiables. Short-lived JWTs. Rate limiting on every endpoint. That kind of thing.
 
 It is the cleanest combination of SDD and TDD I saw. High-level spec sets the destination; inside the Tasks phase you can drop straight into red-green-refactor for each piece. Some teams even put "all new code must be TDD-driven" in the Constitution and mean it.
 
@@ -67,7 +67,7 @@ I ran a multi-tenant OAuth service through it. The Constitution killed three hal
 
 When the feature is simply too big for one context window, BMAD is the multi-agent approach that didn’t completely fall apart on me.
 
-It spins up specialized agents—PM, Architect, Dev, QA—and keeps their contexts separate. The PM breaks things down, the Architect maps data flow, the Dev writes code, the QA agent validates. It is a full standup without the video-call performance.
+It spins up specialized agents-PM, Architect, Dev, QA-and keeps their contexts separate. The PM breaks things down, the Architect maps data flow, the Dev writes code, the QA agent validates. It is a full standup without the video-call performance.
 
 The QA agent is where TDD lives most naturally. While the others work from the high-level spec, QA can generate failing tests first and force the Dev agent to make them pass. I threw a messy monolith-to-microservices split at it. Architect produced the gRPC contracts, Dev implemented the handlers, QA drove the cross-service tests in proper TDD style. Still needed a human watching the handoffs, but it was the only framework that didn’t just collapse under the size of the problem.
 
@@ -75,7 +75,7 @@ The QA agent is where TDD lives most naturally. While the others work from the h
 
 This one is less about generating code and more about refusing to let the model quietly break things three folders away.
 
-It treats your requirements as a contract and keeps checking the generated code against it. Invisible drift—those moments when the AI "fixes" a bug by deleting your edge-case validation—gets flagged. In regulated work this is almost non-negotiable. Spec says every transaction must hit the audit log. TDD makes sure the logging functions themselves work. OpenGap blocks any PR that optimizes the audit trail out of existence. Same pattern for PII scrubbing.
+It treats your requirements as a contract and keeps checking the generated code against it. Invisible drift-those moments when the AI "fixes" a bug by deleting your edge-case validation-gets flagged. In regulated work this is almost non-negotiable. Spec says every transaction must hit the audit log. TDD makes sure the logging functions themselves work. OpenGap blocks any PR that optimizes the audit trail out of existence. Same pattern for PII scrubbing.
 
 It sits downstream of both SDD and TDD and acts as the last behavioral gate. Not glamorous. Extremely useful.
 
@@ -97,11 +97,11 @@ There are also harnesses that treat the test suite itself as the specification. 
 
 | Framework       | Token Efficiency / LLM Cost                          | Setup Overhead                                      | Maintenance Effort                                      | TDD Integration Cost                  |
 |-----------------|------------------------------------------------------|-----------------------------------------------------|---------------------------------------------------------|---------------------------------------|
-| **OpenSpec**    | Low — only active diffs are fed to the model         | Minimal (under 5 minutes)                           | Low — specs evolve with normal commits                  | Low (tests stay local)                |
-| **GitHub SpecKit** | Moderate — refinement loops add some overhead     | Medium — needs team agreement on the Constitution   | Medium — reviews required at each gate                  | Medium (tests often written in Tasks) |
-| **BMAD**        | Higher — multi-agent runs mean parallel model calls  | High — roles and handoff rules need defining        | High — someone still has to supervise the virtual team  | Medium-High (QA agent orchestration)  |
-| **OpenGap**     | Moderate — automated verification on PRs             | Medium — needs solid upfront contracts              | Low/Automated — fits into normal CI                     | Low (contracts can feed tests)        |
-| **Graphify**    | Lowest LLM cost — local AST work uses zero tokens    | Low — one CLI command to index                      | Low — incremental re-indexing via hooks                 | Low (improves TDD targeting)          |
+| **OpenSpec**    | Low - only active diffs are fed to the model         | Minimal (under 5 minutes)                           | Low - specs evolve with normal commits                  | Low (tests stay local)                |
+| **GitHub SpecKit** | Moderate - refinement loops add some overhead     | Medium - needs team agreement on the Constitution   | Medium - reviews required at each gate                  | Medium (tests often written in Tasks) |
+| **BMAD**        | Higher - multi-agent runs mean parallel model calls  | High - roles and handoff rules need defining        | High - someone still has to supervise the virtual team  | Medium-High (QA agent orchestration)  |
+| **OpenGap**     | Moderate - automated verification on PRs             | Medium - needs solid upfront contracts              | Low/Automated - fits into normal CI                     | Low (contracts can feed tests)        |
+| **Graphify**    | Lowest LLM cost - local AST work uses zero tokens    | Low - one CLI command to index                      | Low - incremental re-indexing via hooks                 | Low (improves TDD targeting)          |
 
 ## What I’m Actually Using
 
