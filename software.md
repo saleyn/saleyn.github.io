@@ -6,6 +6,7 @@
 real-time, mission-critical applications.
 - [RethinkDB](https://rethinkdb.com) - real-time applications with push-based architecture
 to stream updated query results directly to clients via ReQL changefeeds.
+- [ClickHouse](https://clickhouse.com) - fast open-source OLAP database for real-time analytics.
 
 ## Key/value Stores
 
