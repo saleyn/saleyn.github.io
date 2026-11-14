@@ -37,6 +37,12 @@ They fit together cleanly. SDD points at the destination. TDD keeps the individu
 
 I spent some time putting five of these frameworks through real, messy codebases: OpenSpec, OpenGap, BMAD, GitHub SpecKit, Graphify. Also poked at a couple of lighter options. What follows is less a neat taxonomy and more what actually held up when things got ugly.
 
+The thing that really separates these tools is not whether they use AI, but whether they treat the codebase as a document or as a graph. Vibe coding usually behaves like a file browser with a very enthusiastic autocomplete: it reads nearby text, guesses intent, and starts editing. That works in a greenfield repo and falls apart in a system with real dependencies.
+
+A production codebase is a network of ownership, contracts, dataflow, and side effects. One change can touch authentication, persistence, job workers, and metrics without ever living in the same file. Graphify is useful here because it makes those relationships explicit. Instead of asking the model to infer topology from a flattened prompt, it asks the model to reason over a map: service to adapter, module to schema, endpoint to validation path, worker to queue to persistence.
+
+This matters because the real failure mode in AI-assisted coding is not that the model cannot write code. It is that it is terrible at knowing the blast radius of the code it just wrote. A graph gives the agent a better answer to the question that matters: what else does this change actually affect?
+
 ## Landscape Snapshot
 
 | Framework       | Core Focus & Paradigm                        | Primary Strengths                              | Ideal Target Use Case                          | Relationship to TDD                              |
@@ -45,7 +51,7 @@ I spent some time putting five of these frameworks through real, messy codebases
 | **OpenGap**     | Compliance, linting & behavioral gap analysis| Prevents scope creep, strict contract checks   | Auditing AI code, security-first, regulated apps| Contracts often feed or become acceptance tests |
 | **BMAD**        | Multi-agent team simulations                 | Parallel streams, role-driven delegation       | Complex enterprise platforms, multi-tier systems| QA agent naturally drives TDD-style validation  |
 | **GitHub SpecKit** | Gated 4-phase SDD & team standards        | Persistent "constitution" rules, review gates  | Medium-to-large teams, greenfield development  | Explicitly supports tests inside Tasks/Implement|
-| **Graphify**    | Visual & graph-based architectural specs     | Deep topology mapping, zero-token local index  | Microservices, polyglot codebases, system mapping| Shows which surfaces actually need new tests   |
+| **Graphify**    | Graph-first architectural reasoning           | Blast-radius visibility, dependency topology, zero-token local index | Microservices, polyglot codebases, brownfield system mapping | Shows which surfaces actually need new tests and why |
 
 ## OpenSpec
 
@@ -81,11 +87,19 @@ It sits downstream of both SDD and TDD and acts as the last behavioral gate. Not
 
 ## Graphify
 
-Most retrieval approaches still treat code as a bag of text. Graphify builds an actual directional graph with local Tree-sitter parsers. Zero LLM tokens for the parsing step.
+Most retrieval approaches still treat code as a bag of text. Graphify builds an actual directional graph with local Tree-sitter parsers. Zero LLM tokens for the parsing step. That sounds modest, but in practice it changes how the AI understands the system.
 
-Its practical value is making TDD less random. Change a core utility used by fourteen services and the graph shows the real blast radius so you know which tests actually need attention. You still write the tests. You just stop testing the wrong surfaces.
+The real win is not prettier architecture diagrams. It is the fact that the graph exposes the live topology: who depends on whom, which code paths are adjacent, and which tests are actually relevant. In a large system, that is the difference between a confident patch and an accidental cross-service regression.
 
-To illustrate its work I used it on an Elixir app that implements a distributed order processing engine which saved orders to Postgres. The Graphify's local AST parse mapped the full runtime layout of the application. Here is a sample output:
+I think of Graphify as the missing middle layer between specs and implementation. Specs tell us what should happen. TDD tells us whether a piece works. Graphify tells us what the system actually looks like before the model invents a change against the wrong surface.
+
+This matters in three concrete ways:
+
+- Blast radius: when a core utility changes, the graph shows the actual downstream edges instead of forcing the model to guess.
+- Test targeting: the graph points to the real contracts and dependent modules, so you stop writing tests for the wrong layer.
+- Context discipline: instead of dumping a giant repo into the prompt, you ask for the relevant subgraph.
+
+To illustrate its work I used it on an Elixir app that implements a distributed order processing engine which saved orders to Postgres. The local AST parse mapped the runtime layout of the application. Here is a sample output:
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -110,6 +124,10 @@ To illustrate its work I used it on an Elixir app that implements a distributed 
                                         [Pipeline.StripeAdapter]
 ```
 
+That graph is not just documentation. It is a structural guardrail. If you add a field to the order schema, the graph immediately tells you which processors, adapters, and validation paths are relevant. It also tells you which tests should fail first, which is exactly the kind of operational intelligence that vibe coding usually loses.
+
+In an AI workflow, Graphify is most valuable when paired with SDD. The spec defines intent. The graph defines system topology. TDD still validates behavior. Together they are a much stronger engineering discipline than prompt-only coding ever was.
+
 ## Two Lighter Options
 
 Aider plus a strict conventions file works surprisingly well for solo work. The conventions act as a lightweight spec; you can still drive individual changes with normal TDD.
@@ -128,9 +146,61 @@ There are also harnesses that treat the test suite itself as the specification. 
 
 ## What I’m Actually Using
 
-Vibe coding was a fun phase. Production code is not. The combinations that keep working for me:
+Vibe coding was a fun phase. Production code is not. The setup that keeps working for me is Graphify plus OpenSpec.
 
-- Messy active codebases: Graphify for the map, OpenSpec for the change, ordinary TDD on the surfaces that matter.
+Graphify helps avoid wasted AI context. Instead of dumping a large repository into the prompt and hoping the model can infer the dependency graph, it points the agent at the relevant topology: which modules are connected, which contracts matter, and which downstream tests are likely to break. That reduces token usage substantially because the asks become dependency-aware instead of broad and fuzzy.
+
+OpenSpec is the change-management layer. It helps move work through proposal, analysis, specification, and implementation without letting the model jump straight into code before the requirements are stabilized. In other words, Graphify answers the question, "What is connected to this change?" while OpenSpec answers, "What exactly are we changing, and how do we review it before implementation?"
+
+That pairing is especially effective on active, messy systems: Graphify narrows the blast radius, OpenSpec keeps the change disciplined, and TDD still provides the execution-level correctness checks.
+
+A concrete Claude workflow looks like this:
+
+```text
+# 1) Install OpenSpec
+$ npm install -g @fission-ai/openspec
+
+# 2) Initialize OpenSpec in your project
+$ cd /path/to/your-project
+$ openspec init
+
+# 3) Install Graphify
+$ uv tool install graphifyy
+
+# 4) Install Graphify into Claude
+$ graphify claude install
+
+# 5) Inside Claude prompt build the dependency map for the repo
+/graphify .
+
+# 6) Ask the dependency question before proposing a change
+/graphify query "Which modules are affected by the user auth/session flow?"
+
+# 7) Start with an analysis phase in OpenSpec
+/openspec analyze "Add refresh-token rotation"
+
+# 8) Create the proposal and requirement spec
+/openspec propose "Add refresh-token rotation"
+/openspec spec "Refresh token lifecycle and expiry policy"
+
+# 9) Review the spec before implementation
+# Check assumptions, edge cases, non-goals, and acceptance criteria
+# Make sure the model is solving the defined problem rather than improvising
+
+# 10) Implement in small patches with TDD
+/openspec implement "Refresh token lifecycle and expiry policy"
+# Write failing tests, then patch the affected surface, then rerun the focused checks
+
+# 11) Archive the completed change when it is validated
+/openspec archive "Refresh token lifecycle and expiry policy"
+```
+
+In practice, the sequence is: install Graphify, map the dependency surface, analyze the change, define the spec, implement within the reviewed scope, and archive once validated. That ordering matters. It turns AI from creative improviser into bounded executor.
+
+## Other projects
+
+For other environments, the patterns still hold:
+
 - Team or greenfield work: SpecKit. Let the Constitution and the gates handle the SDD layer; nest TDD inside implementation.
 - High-stakes or genuinely large systems: OpenGap for the contract enforcement, BMAD when one agent is clearly not enough. Keep TDD as the unit-level truth serum.
 
