@@ -3,8 +3,7 @@ layout: default
 title: "Мафия: Совет Теней"
 permalink: /games/mafia-ru/
 ---
-
-# МАФИЯ: СОВЕТ ТЕНЕЙ
+![Banner](https://aleynikov.org/assets/mafia-ru.png)
 
 **Количество игроков:** 5–16 игроков + 1 Ведущий
 

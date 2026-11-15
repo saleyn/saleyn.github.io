@@ -3,8 +3,7 @@ layout: default
 title: "Mafia: Council of Shadows"
 permalink: /games/mafia-en/
 ---
-
-# MAFIA: COUNCIL OF SHADOWS
+![Banner](https://aleynikov.org/assets/mafia-en.png)
 
 **Player Count:** 5–16 Players + 1 Moderator
 
