@@ -112,3 +112,7 @@ Win conditions are counted strictly by **living players**:
 * **Before the Game:** Remind players that roles remain hidden upon death, dead players sleep with their eyes closed at night, and voting happens strictly on the count of three (open hand for living, thumbs-up for the Council of Shadows).
 * **At Night:** Watch to ensure dead players keep their eyes closed—especially eliminated Mafia members, so they do not learn future night targets.
 * **During Voting:** Count living open hands first, then check if the Council of Shadows reached a strict majority of thumbs-up to award the **+1 Shadow Vote**.
+
+## Copyright
+
+© 2026 Serge Aleynikov. All rights reserved. Mafia: Council of Shadows rulebook text and layout.
